@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polski — Apprendre la conjugaison</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --surface: #16181f;
+    --card: #1e2028;
+    --border: #2e3040;
+    --accent: #e8c96d;
+    --accent2: #6db8e8;
+    --accent3: #e86d8a;
+    --text: #e8e6df;
+    --muted: #7a7d8a;
+    --success: #6de8a0;
+    --error: #e86d6d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 2rem 1rem 4rem;
+    background-image: radial-gradient(ellipse 60% 40% at 80% 10%, rgba(109,184,232,0.07) 0%, transparent 60%),
+                      radial-gradient(ellipse 50% 50% at 20% 90%, rgba(232,201,109,0.05) 0%, transparent 60%);
+  }
+  header { text-align: center; margin-bottom: 2rem; animation: fadeDown 0.7s ease both; }
+  header .flag { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,5vw,3.2rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); font-size: 0.95rem; margin-top: 0.5rem; font-family: 'DM Mono', monospace; }
+
+  .nav-tabs {
+    display: flex; gap: 0.25rem; margin-bottom: 2rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 0.3rem;
+    animation: fadeDown 0.7s 0.1s ease both; opacity: 0;
+  }
+  .nav-tab {
+    padding: 0.55rem 1.6rem; border-radius: 10px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
+    border: none; background: transparent; color: var(--muted); transition: all 0.2s;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
+  .nav-tab.tlearn.active { color: var(--accent2); }
+  .nav-tab.tgrammar.active { color: var(--accent3); }
+  .nav-tab.tpractice.active { color: var(--accent); }
+
+  /* GRAMMAR SUB-TABS */
+  .sub-nav { display: flex; gap: 0.4rem; width: 100%; flex-wrap: wrap; margin-bottom: 0.5rem; }
+  .sub-tab {
+    padding: 0.45rem 1.1rem; border-radius: 9px; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.05em;
+    border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+    transition: all 0.2s; flex: 1; text-align: center; white-space: nowrap;
+  }
+  .sub-tab:hover { border-color: var(--accent3); color: var(--accent3); }
+  .sub-tab.active { border-color: var(--accent3); color: var(--accent3); background: rgba(232,109,138,0.08); }
+
+  .sub-panel { display: none; width: 100%; flex-direction: column; gap: 1.2rem; }
+  .sub-panel.visible { display: flex; animation: fadeUp 0.3s ease; }
+
+  /* GRAMMAR shared styles */
+  .gram-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; width: 100%; }
+  .gram-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 0.5rem; }
+  .gram-card h3 span { color: var(--accent3); }
+  .gram-card .desc { color: var(--muted); font-size: 0.87rem; line-height: 1.7; margin-bottom: 1.3rem; }
+  .gram-card .desc strong { color: var(--text); font-weight: 500; }
+  .gram-card .desc em { font-style: normal; font-family: 'DM Mono', monospace; color: var(--accent2); }
+
+  .gram-table { width: 100%; border-collapse: collapse; font-family: 'DM Mono', monospace; font-size: 0.85rem; margin-bottom: 1.2rem; }
+  .gram-table th { text-align: left; padding: 0.5rem 0.7rem; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border); }
+  .gram-table td { padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(46,48,64,0.4); vertical-align: top; line-height: 1.5; }
+  .gram-table tr:last-child td { border-bottom: none; }
+  .gram-table .gpl { color: var(--accent); font-weight: 500; }
+  .gram-table .gfr { color: var(--muted); font-size: 0.8rem; }
+  .gram-table .gex { color: var(--accent2); font-size: 0.8rem; }
+  .gram-table .gnote { color: var(--muted); font-size: 0.78rem; font-style: italic; }
+
+  .example-block {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.8rem 1rem; margin-top: 0.6rem;
+  }
+  .example-block .epl { font-family: 'DM Mono', monospace; color: var(--accent2); font-size: 0.9rem; margin-bottom: 0.2rem; }
+  .example-block .efr { color: var(--muted); font-size: 0.82rem; }
+  .example-block .enote { color: var(--muted); font-size: 0.75rem; margin-top: 0.3rem; font-style: italic; }
+
+  .rule-box {
+    background: rgba(232,109,138,0.07); border: 1px solid rgba(232,109,138,0.25);
+    border-radius: 10px; padding: 0.8rem 1rem; font-size: 0.85rem; line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+  .rule-box strong { color: var(--accent3); font-weight: 500; }
+  .rule-box em { font-style: normal; font-family: 'DM Mono', monospace; color: var(--accent); }
+
+  .poss-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 0.6rem; }
+  .poss-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.65rem 0.9rem; }
+  .poss-cell .plabel { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 0.3rem; }
+  .poss-cell .pword { font-family: 'DM Mono', monospace; color: var(--accent3); font-size: 0.95rem; font-weight: 500; }
+  .poss-cell .pmean { color: var(--muted); font-size: 0.8rem; }
+
+  .section { width: 100%; max-width: 720px; display: none; }
+  .section.visible { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+
+  /* STATS */
+  .stats-bar { display: flex; gap: 1rem; width: 100%; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 0.6rem 1rem; text-align: center; flex: 1; }
+  .stat-val { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; }
+  .stat-val.gold { color: var(--accent); }
+  .stat-val.blue { color: var(--accent2); }
+  .stat-val.green { color: var(--success); }
+  .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'DM Mono', monospace; }
+
+  /* LEARN — intro */
+  .learn-intro { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; width: 100%; position: relative; overflow: hidden; }
+  .learn-intro::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent2), var(--success)); border-radius: 20px 20px 0 0; }
+  .learn-intro h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.6rem; }
+  .learn-intro p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+  .learn-intro p strong { color: var(--accent2); font-weight: 500; }
+
+  /* ALPHABET */
+  .alpha-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; width: 100%; }
+  .alpha-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 0.4rem; }
+  .alpha-card h3 span { color: var(--accent); }
+  .alpha-card .sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 1.1rem; }
+  .letters-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .lchip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.7rem; cursor: default; transition: border-color 0.15s; }
+  .lchip:hover { border-color: var(--accent); }
+  .lchip .ltr { color: var(--accent); font-family: 'DM Mono', monospace; font-size: 0.95rem; font-weight: 500; margin-right: 0.3rem; }
+  .lchip .snd { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.72rem; }
+
+  /* PRONOUNS */
+  .pron-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; width: 100%; }
+  .pron-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 1.2rem; }
+  .pron-card h3 span { color: var(--accent2); }
+  .pron-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .pron-row { display: flex; justify-content: space-between; align-items: center; background: var(--surface); border-radius: 10px; padding: 0.6rem 0.9rem; border: 1px solid var(--border); }
+  .pron-pl { font-family: 'DM Mono', monospace; color: var(--accent2); font-size: 0.9rem; }
+  .pron-fr { color: var(--muted); font-size: 0.82rem; }
+
+  /* VERB CARDS */
+  .verb-section-title { font-family: 'DM Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; width: 100%; }
+  .verb-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; width: 100%; transition: border-color 0.2s; }
+  .verb-card:hover { border-color: rgba(109,184,232,0.35); }
+  .verb-card-hdr { display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 1.4rem; cursor: pointer; user-select: none; }
+  .verb-hdr-left { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+  .vpl { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  .vfr { color: var(--muted); font-size: 0.9rem; }
+  .vbadge { font-family: 'DM Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.18rem 0.5rem; border-radius: 5px; border: 1px solid var(--border); color: var(--muted); }
+  .vbadge.irregular { border-color: rgba(232,201,109,0.35); color: var(--accent); }
+  .vchev { color: var(--muted); transition: transform 0.3s; font-size: 0.85rem; }
+  .verb-card.open .vchev { transform: rotate(180deg); }
+  .verb-card-body { display: none; padding: 0 1.4rem 1.4rem; }
+  .verb-card.open .verb-card-body { display: block; animation: fadeUp 0.25s ease; }
+  .vex { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; line-height: 1.6; }
+  .vex .xpl { font-family: 'DM Mono', monospace; color: var(--accent2); margin-bottom: 0.2rem; }
+  .vex .xfr { color: var(--muted); }
+  .vnote { color: var(--muted); font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.5; }
+  .ctabs { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .ctab { padding: 0.3rem 0.8rem; border-radius: 7px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; border: 1px solid var(--border); background: var(--surface); color: var(--muted); transition: all 0.15s; }
+  .ctab.active { border-color: var(--accent2); color: var(--accent2); background: rgba(109,184,232,0.08); }
+  .ctbl { width: 100%; border-collapse: collapse; font-family: 'DM Mono', monospace; font-size: 0.87rem; }
+  .ctbl tr { border-bottom: 1px solid rgba(46,48,64,0.5); }
+  .ctbl tr:last-child { border-bottom: none; }
+  .ctbl td { padding: 0.45rem 0.4rem; }
+  .ctbl .cn { color: var(--muted); font-size: 0.7rem; width: 20px; }
+  .ctbl .cp { color: var(--accent2); width: 95px; }
+  .ctbl .cf { color: var(--accent); font-weight: 500; width: 155px; }
+  .ctbl .cm { color: var(--muted); font-size: 0.78rem; }
+
+  /* TIPS */
+  .tips-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; width: 100%; }
+  .tips-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 1.2rem; }
+  .tips-card h3 span { color: var(--accent3); }
+  .tip { display: flex; gap: 0.9rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .tip:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .tipn { min-width: 26px; height: 26px; border-radius: 50%; background: rgba(232,109,138,0.12); border: 1px solid rgba(232,109,138,0.3); color: var(--accent3); font-family: 'DM Mono', monospace; font-size: 0.72rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.15rem; }
+  .tipc { font-size: 0.88rem; line-height: 1.7; }
+  .tipc strong { color: var(--accent); font-weight: 500; }
+  .tipc em { color: var(--accent2); font-style: normal; font-family: 'DM Mono', monospace; }
+
+  /* PRACTICE */
+  .mode-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; width: 100%; }
+  .mode-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 0.45rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 0.78rem; transition: all 0.2s; letter-spacing: 0.05em; }
+  .mode-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .mode-btn.active { background: var(--accent); border-color: var(--accent); color: #0e0f14; font-weight: 500; }
+
+  .exercise-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 100%; position: relative; overflow: hidden; }
+  .exercise-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 20px 20px 0 0; }
+  .extype { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+  .extype::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+  .qtext { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem,3vw,1.5rem); line-height: 1.5; margin-bottom: 0.75rem; }
+  .qhint { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; font-family: 'DM Mono', monospace; }
+  .qhint strong { color: var(--accent2); font-weight: 400; }
+  .answer-area { margin-bottom: 1.5rem; }
+  .answer-input { width: 100%; background: var(--surface); border: 1.5px solid var(--border); color: var(--text); padding: 1rem 1.25rem; border-radius: 12px; font-family: 'DM Mono', monospace; font-size: 1rem; transition: border-color 0.2s; resize: none; }
+  .answer-input:focus { outline: none; border-color: var(--accent2); }
+  .answer-input.correct { border-color: var(--success); background: rgba(109,232,160,0.06); }
+  .answer-input.wrong { border-color: var(--error); background: rgba(232,109,109,0.06); }
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
+  .option-btn { background: var(--surface); border: 1.5px solid var(--border); color: var(--text); padding: 0.85rem 1rem; border-radius: 12px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 0.88rem; text-align: left; transition: all 0.15s; line-height: 1.4; }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent2); background: rgba(109,184,232,0.06); }
+  .option-btn.correct { border-color: var(--success) !important; background: rgba(109,232,160,0.1) !important; color: var(--success); }
+  .option-btn.wrong { border-color: var(--error) !important; background: rgba(232,109,109,0.1) !important; color: var(--error); }
+  .feedback-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.9rem; display: none; line-height: 1.6; }
+  .feedback-box.show { display: block; animation: fadeUp 0.3s ease; }
+  .feedback-box.success { border-color: var(--success); background: rgba(109,232,160,0.06); }
+  .feedback-box.fail { border-color: var(--error); background: rgba(232,109,109,0.06); }
+  .feedback-box .cans { color: var(--success); font-family: 'DM Mono', monospace; font-weight: 500; }
+  .feedback-box .expl { color: var(--muted); font-size: 0.82rem; margin-top: 0.4rem; }
+  .btn-row { display: flex; gap: 0.75rem; }
+  .btn { flex: 1; padding: 0.85rem; border-radius: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; border: none; transition: all 0.2s; }
+  .btn-primary { background: var(--accent); color: #0e0f14; }
+  .btn-primary:hover { background: #f0d47a; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .progress-bar { width: 100%; height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; transition: width 0.4s ease; }
+  .hint-panel { background: var(--surface); border: 1px solid rgba(109,184,232,0.3); border-radius: 12px; padding: 1.1rem 1.3rem; display: none; margin-bottom: 1.5rem; }
+  .hint-panel.show { display: block; animation: fadeUp 0.25s ease; }
+  .hint-panel h4 { font-family: 'DM Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent2); margin-bottom: 0.7rem; }
+  .hmini { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 1rem; }
+  .hrow { display: flex; gap: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.82rem; }
+  .hrow .hp { color: var(--accent2); width: 70px; flex-shrink: 0; }
+  .hrow .hf { color: var(--accent); }
+  .back-to-learn { background: rgba(109,184,232,0.07); border: 1px dashed rgba(109,184,232,0.3); border-radius: 12px; padding: 0.85rem 1.2rem; font-size: 0.85rem; color: var(--muted); cursor: pointer; text-align: center; transition: all 0.2s; width: 100%; }
+  .back-to-learn:hover { background: rgba(109,184,232,0.12); color: var(--accent2); }
+  .back-to-learn span { color: var(--accent2); font-weight: 500; }
+  .congrats { text-align: center; padding: 2rem; }
+  .congrats .big { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 900; color: var(--accent); }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  .shake { animation: shake 0.4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}60%{transform:translateX(8px)}80%{transform:translateX(-4px)} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="flag">🇵🇱</div>
+  <h1>Nauka <span>Polski</span></h1>
+  <p>cours &amp; exercices de conjugaison · niveau débutant</p>
+</header>
+
+<div class="nav-tabs">
+  <button class="nav-tab tlearn active" onclick="switchTab('learn')">📚 Verbes</button>
+  <button class="nav-tab tgrammar" onclick="switchTab('grammar')">📖 Grammaire</button>
+  <button class="nav-tab tpractice" onclick="switchTab('practice')">✏️ Exercices</button>
+</div>
+
+<!-- ===== LEARN ===== -->
+<div class="section visible" id="learnSection">
+
+  <div class="learn-intro">
+    <h2>Bienvenue dans le cours de polonais 🇵🇱</h2>
+    <p>Le polonais est une langue <strong>slave occidentale</strong>. Cette section couvre les <strong>8 verbes essentiels</strong> avec leur conjugaison complète aux 3 temps. Pour les questions, pluriels et pronoms possessifs, consulte l'onglet <strong>📖 Grammaire</strong>. Les exercices utilisent tout ce contenu !</p>
+  </div>
+
+  <div class="alpha-card">
+    <h3>Lettres spéciales — <span>znaki diakrytyczne</span></h3>
+    <p class="sub">Ces lettres n'existent pas en français. Passe la souris pour entendre leur valeur phonétique :</p>
+    <div class="letters-grid" id="alphaGrid"></div>
+  </div>
+
+  <div class="pron-card">
+    <h3>Pronoms personnels — <span>zaimki osobowe</span></h3>
+    <div class="pron-grid" id="pronGrid"></div>
+  </div>
+
+  <div style="width:100%">
+    <div class="verb-section-title">Les 8 verbes essentiels — cliquez pour dérouler</div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem" id="verbCards"></div>
+  </div>
+
+  <div class="tips-card">
+    <h3>Astuces pour débutants — <span>wskazówki</span></h3>
+    <div class="tip"><div class="tipn">1</div><div class="tipc">Le polonais n'a <strong>pas d'articles</strong>. <em>Mam psa</em> = "J'ai un chien" — le contexte suffit !</div></div>
+    <div class="tip"><div class="tipn">2</div><div class="tipc">Le sujet est souvent <strong>omis</strong> car la terminaison l'indique. <em>Mówię</em> = "Je parle" (sans dire <em>Ja mówię</em>).</div></div>
+    <div class="tip"><div class="tipn">3</div><div class="tipc">Au passé, la forme change selon le <strong>genre</strong> : homme → <em>byłem</em>, femme → <em>byłam</em>.</div></div>
+    <div class="tip"><div class="tipn">4</div><div class="tipc">Pour les questions, on ajoute <em><strong>Czy</strong></em> en début de phrase. <em>Czy mówisz po polsku?</em> = "Tu parles polonais ?"</div></div>
+    <div class="tip"><div class="tipn">5</div><div class="tipc">Terminaisons clés au présent : <em>-ę/-m</em> (je), <em>-sz</em> (tu), sans terminaison (il), <em>-my</em> (nous), <em>-cie</em> (vous), <em>-ą</em> (ils).</div></div>
+  </div>
+
+  <button class="btn btn-primary" style="max-width:280px" onclick="switchTab('practice')">✏️ Aller aux exercices →</button>
+</div>
+
+<!-- ===== GRAMMAR ===== -->
+<div class="section" id="grammarSection">
+
+  <!-- Sub-nav -->
+  <div class="sub-nav">
+    <button class="sub-tab active" onclick="switchSubTab('questions',this)">❓ Questions</button>
+    <button class="sub-tab" onclick="switchSubTab('pluriel',this)">🔢 Pluriels</button>
+    <button class="sub-tab" onclick="switchSubTab('possessif',this)">🏷️ Possessifs</button>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="sub-panel visible" id="subQuestions">
+    <div class="gram-card">
+      <h3>Poser des questions — <span>pytania</span></h3>
+      <p class="desc">Il existe <strong>3 façons</strong> de poser une question en polonais, selon ce qu'on cherche à savoir.</p>
+
+      <div class="rule-box"><strong>1. Oui / Non → <em>Czy</em> + phrase affirmative</strong><br>On place <em>Czy</em> au début, le reste de la phrase ne change pas.</div>
+      <table class="gram-table">
+        <tr><th>Polonais</th><th>Français</th></tr>
+        <tr><td><span class="gpl">Czy mówisz po polsku?</span></td><td><span class="gfr">Tu parles polonais ?</span></td></tr>
+        <tr><td><span class="gpl">Czy masz brata?</span></td><td><span class="gfr">Tu as un frère ?</span></td></tr>
+        <tr><td><span class="gpl">Czy to jest twój dom?</span></td><td><span class="gfr">C'est ta maison ?</span></td></tr>
+        <tr><td><span class="gpl">Czy jesteś gotowy?</span></td><td><span class="gfr">Tu es prêt ?</span></td></tr>
+      </table>
+
+      <div class="rule-box" style="margin-top:0.5rem"><strong>2. Mots interrogatifs — <em>kto, co, gdzie, kiedy…</em></strong><br>Placés en début de phrase, ils remplacent l'élément recherché.</div>
+      <table class="gram-table">
+        <tr><th>Mot</th><th>Sens</th><th>Exemple</th></tr>
+        <tr><td><span class="gpl">kto</span></td><td><span class="gfr">qui</span></td><td><span class="gex">Kto to jest? → Qui est-ce ?</span></td></tr>
+        <tr><td><span class="gpl">co</span></td><td><span class="gfr">quoi / que</span></td><td><span class="gex">Co robisz? → Que fais-tu ?</span></td></tr>
+        <tr><td><span class="gpl">gdzie</span></td><td><span class="gfr">où</span></td><td><span class="gex">Gdzie mieszkasz? → Tu habites où ?</span></td></tr>
+        <tr><td><span class="gpl">kiedy</span></td><td><span class="gfr">quand</span></td><td><span class="gex">Kiedy idziesz? → Tu pars quand ?</span></td></tr>
+        <tr><td><span class="gpl">dlaczego</span></td><td><span class="gfr">pourquoi</span></td><td><span class="gex">Dlaczego płaczesz? → Pourquoi tu pleures ?</span></td></tr>
+        <tr><td><span class="gpl">jak</span></td><td><span class="gfr">comment</span></td><td><span class="gex">Jak masz na imię? → Tu t'appelles comment ?</span></td></tr>
+        <tr><td><span class="gpl">ile</span></td><td><span class="gfr">combien</span></td><td><span class="gex">Ile masz lat? → Tu as quel âge ?</span></td></tr>
+        <tr><td><span class="gpl">który / która</span></td><td><span class="gfr">quel / quelle</span></td><td><span class="gex">Który autobus? → Quel bus ?</span></td></tr>
+      </table>
+
+      <div class="rule-box"><strong>3. Question par intonation montante</strong><br>La phrase reste identique à l'affirmative, seule la voix monte à la fin.</div>
+      <div class="example-block">
+        <div class="epl">Mówisz po polsku? ↗</div>
+        <div class="efr">Tu parles polonais ? (ton montant)</div>
+        <div class="enote">Familier, à l'oral. Équivalent de "Czy mówisz po polsku?"</div>
+      </div>
+    </div>
+
+    <div class="gram-card">
+      <h3>Réponses courtes — <span>tak / nie</span></h3>
+      <p class="desc">Pour répondre oui/non simplement en polonais :</p>
+      <table class="gram-table">
+        <tr><th>Polonais</th><th>Français</th><th>Usage</th></tr>
+        <tr><td><span class="gpl">Tak</span></td><td><span class="gfr">Oui</span></td><td><span class="gnote">standard</span></td></tr>
+        <tr><td><span class="gpl">Nie</span></td><td><span class="gfr">Non / Ne…pas</span></td><td><span class="gnote">aussi utilisé comme négation</span></td></tr>
+        <tr><td><span class="gpl">Tak jest</span></td><td><span class="gfr">C'est exact</span></td><td><span class="gnote">formel</span></td></tr>
+        <tr><td><span class="gpl">Oczywiście</span></td><td><span class="gfr">Bien sûr</span></td><td><span class="gnote">courant</span></td></tr>
+        <tr><td><span class="gpl">Nie wiem</span></td><td><span class="gfr">Je ne sais pas</span></td><td><span class="gnote">très utile !</span></td></tr>
+      </table>
+      <div class="rule-box"><strong>La négation : <em>nie</em> devant le verbe</strong><br><em>Nie mówię po polsku.</em> = Je ne parle pas polonais.<br><em>Nie mam czasu.</em> = Je n'ai pas le temps.</div>
+    </div>
+  </div>
+
+  <!-- PLURIEL -->
+  <div class="sub-panel" id="subPluriel">
+    <div class="gram-card">
+      <h3>Le pluriel des noms — <span>liczba mnoga</span></h3>
+      <p class="desc">En polonais, le pluriel est formé selon le <strong>genre</strong> du nom (masculin, féminin, neutre) et sa terminaison. Voici les règles principales pour les débutants.</p>
+
+      <div class="rule-box"><strong>Noms féminins → terminaison <em>-a</em> → remplace par <em>-y / -i</em></strong></div>
+      <table class="gram-table">
+        <tr><th>Singulier</th><th>Pluriel</th><th>Sens</th></tr>
+        <tr><td><span class="gpl">kobieta</span></td><td><span class="gpl">kobiety</span></td><td><span class="gfr">femme → femmes</span></td></tr>
+        <tr><td><span class="gpl">książka</span></td><td><span class="gpl">książki</span></td><td><span class="gfr">livre → livres</span></td></tr>
+        <tr><td><span class="gpl">szkoła</span></td><td><span class="gpl">szkoły</span></td><td><span class="gfr">école → écoles</span></td></tr>
+        <tr><td><span class="gpl">ulica</span></td><td><span class="gpl">ulice</span></td><td><span class="gfr">rue → rues</span></td></tr>
+      </table>
+
+      <div class="rule-box"><strong>Noms masculins inanimés → ajout de <em>-y / -i</em></strong></div>
+      <table class="gram-table">
+        <tr><th>Singulier</th><th>Pluriel</th><th>Sens</th></tr>
+        <tr><td><span class="gpl">dom</span></td><td><span class="gpl">domy</span></td><td><span class="gfr">maison → maisons</span></td></tr>
+        <tr><td><span class="gpl">samochód</span></td><td><span class="gpl">samochody</span></td><td><span class="gfr">voiture → voitures</span></td></tr>
+        <tr><td><span class="gpl">autobus</span></td><td><span class="gpl">autobusy</span></td><td><span class="gfr">bus → bus</span></td></tr>
+        <tr><td><span class="gpl">stół</span></td><td><span class="gpl">stoły</span></td><td><span class="gfr">table → tables</span></td></tr>
+      </table>
+
+      <div class="rule-box"><strong>Noms masculins animés (personnes) → terminaison <em>-i / -y / -owie</em></strong><br>Attention aux mutations consonantiques !</div>
+      <table class="gram-table">
+        <tr><th>Singulier</th><th>Pluriel</th><th>Sens</th></tr>
+        <tr><td><span class="gpl">student</span></td><td><span class="gpl">studenci</span></td><td><span class="gfr">étudiant → étudiants</span></td></tr>
+        <tr><td><span class="gpl">profesor</span></td><td><span class="gpl">profesorowie</span></td><td><span class="gfr">professeur → professeurs</span></td></tr>
+        <tr><td><span class="gpl">mężczyzna</span></td><td><span class="gpl">mężczyźni</span></td><td><span class="gfr">homme → hommes</span></td></tr>
+        <tr><td><span class="gpl">kolega</span></td><td><span class="gpl">koledzy</span></td><td><span class="gfr">ami → amis</span></td></tr>
+      </table>
+
+      <div class="rule-box"><strong>Noms neutres → terminaison <em>-o / -e / -um</em> → remplace par <em>-a</em></strong></div>
+      <table class="gram-table">
+        <tr><th>Singulier</th><th>Pluriel</th><th>Sens</th></tr>
+        <tr><td><span class="gpl">miasto</span></td><td><span class="gpl">miasta</span></td><td><span class="gfr">ville → villes</span></td></tr>
+        <tr><td><span class="gpl">dziecko</span></td><td><span class="gpl">dzieci</span></td><td><span class="gfr">enfant → enfants (irrég.)</span></td></tr>
+        <tr><td><span class="gpl">muzeum</span></td><td><span class="gpl">muzea</span></td><td><span class="gfr">musée → musées</span></td></tr>
+        <tr><td><span class="gpl">okno</span></td><td><span class="gpl">okna</span></td><td><span class="gfr">fenêtre → fenêtres</span></td></tr>
+      </table>
+    </div>
+
+    <div class="gram-card">
+      <h3>Nombre et noms — <span>liczebniki</span></h3>
+      <p class="desc">Le polonais utilise des formes différentes du nom selon le <strong>chiffre</strong> qui le précède. C'est une des particularités les plus complexes !</p>
+      <table class="gram-table">
+        <tr><th>Chiffre</th><th>Forme utilisée</th><th>Exemple</th></tr>
+        <tr><td><span class="gpl">1</span></td><td><span class="gfr">nominatif singulier</span></td><td><span class="gex">jeden kot — un chat</span></td></tr>
+        <tr><td><span class="gpl">2, 3, 4</span></td><td><span class="gfr">génitif singulier</span></td><td><span class="gex">dwa koty — deux chats</span></td></tr>
+        <tr><td><span class="gpl">5, 6, 7…</span></td><td><span class="gfr">génitif pluriel</span></td><td><span class="gex">pięć kotów — cinq chats</span></td></tr>
+      </table>
+      <div class="example-block">
+        <div class="epl">jeden pies / dwa psy / pięć psów</div>
+        <div class="efr">un chien / deux chiens / cinq chiens</div>
+        <div class="enote">Ne t'inquiète pas pour les cas maintenant — retiens juste que la forme change !</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POSSESSIFS -->
+  <div class="sub-panel" id="subPossessif">
+    <div class="gram-card">
+      <h3>Pronoms possessifs — <span>zaimki dzierżawcze</span></h3>
+      <p class="desc">En polonais, les possessifs <strong>s'accordent</strong> avec le nom qu'ils accompagnent (masculin, féminin, neutre, pluriel). Voici les formes de base au nominatif :</p>
+
+      <div class="rule-box"><strong>Possessifs de la 1ère et 2ème personne</strong></div>
+      <table class="gram-table">
+        <tr><th>Personne</th><th>Masc.</th><th>Fém.</th><th>Neutre</th><th>Pluriel</th></tr>
+        <tr>
+          <td><span class="gfr">mon / ma</span></td>
+          <td><span class="gpl">mój</span></td><td><span class="gpl">moja</span></td>
+          <td><span class="gpl">moje</span></td><td><span class="gpl">moje / moi</span></td>
+        </tr>
+        <tr>
+          <td><span class="gfr">ton / ta</span></td>
+          <td><span class="gpl">twój</span></td><td><span class="gpl">twoja</span></td>
+          <td><span class="gpl">twoje</span></td><td><span class="gpl">twoje / twoi</span></td>
+        </tr>
+        <tr>
+          <td><span class="gfr">notre</span></td>
+          <td><span class="gpl">nasz</span></td><td><span class="gpl">nasza</span></td>
+          <td><span class="gpl">nasze</span></td><td><span class="gpl">nasze / nasi</span></td>
+        </tr>
+        <tr>
+          <td><span class="gfr">votre</span></td>
+          <td><span class="gpl">wasz</span></td><td><span class="gpl">wasza</span></td>
+          <td><span class="gpl">wasze</span></td><td><span class="gpl">wasze / wasi</span></td>
+        </tr>
+      </table>
+
+      <div class="rule-box" style="margin-top:0.8rem"><strong>Possessifs de la 3ème personne — invariables !</strong><br>Bonne nouvelle : <em>jego</em>, <em>jej</em> et <em>ich</em> ne changent pas selon le genre.</div>
+      <table class="gram-table">
+        <tr><th>Personne</th><th>Forme</th><th>Exemple</th></tr>
+        <tr><td><span class="gfr">son / sa (masc.)</span></td><td><span class="gpl">jego</span></td><td><span class="gex">jego dom — sa maison (à lui)</span></td></tr>
+        <tr><td><span class="gfr">son / sa (fém.)</span></td><td><span class="gpl">jej</span></td><td><span class="gex">jej książka — son livre (à elle)</span></td></tr>
+        <tr><td><span class="gfr">leur</span></td><td><span class="gpl">ich</span></td><td><span class="gex">ich dzieci — leurs enfants</span></td></tr>
+        <tr><td><span class="gfr">son propre (réfl.)</span></td><td><span class="gpl">swój / swoja / swoje</span></td><td><span class="gex">mój/swój kot — mon propre chat</span></td></tr>
+      </table>
+    </div>
+
+    <div class="gram-card">
+      <h3>Exemples en contexte</h3>
+      <p class="desc">Voici comment les possessifs s'accordent selon le genre du <strong>nom possédé</strong> :</p>
+      <div class="poss-grid">
+        <div class="poss-cell"><div class="plabel">mój (masc.)</div><div class="pword">mój brat</div><div class="pmean">mon frère</div></div>
+        <div class="poss-cell"><div class="plabel">moja (fém.)</div><div class="pword">moja siostra</div><div class="pmean">ma sœur</div></div>
+        <div class="poss-cell"><div class="plabel">moje (neutre)</div><div class="pword">moje dziecko</div><div class="pmean">mon enfant</div></div>
+        <div class="poss-cell"><div class="plabel">twój (masc.)</div><div class="pword">twój samochód</div><div class="pmean">ta voiture</div></div>
+        <div class="poss-cell"><div class="plabel">twoja (fém.)</div><div class="pword">twoja praca</div><div class="pmean">ton travail</div></div>
+        <div class="poss-cell"><div class="plabel">nasz (masc.)</div><div class="pword">nasz kraj</div><div class="pmean">notre pays</div></div>
+        <div class="poss-cell"><div class="plabel">nasza (fém.)</div><div class="pword">nasza szkoła</div><div class="pmean">notre école</div></div>
+        <div class="poss-cell"><div class="plabel">ich (invariable)</div><div class="pword">ich dom</div><div class="pmean">leur maison</div></div>
+      </div>
+      <div class="example-block" style="margin-top:1rem">
+        <div class="epl">To jest mój kot. Gdzie jest twoja książka?</div>
+        <div class="efr">C'est mon chat. Où est ton livre ?</div>
+      </div>
+      <div class="example-block">
+        <div class="epl">Nasz dom jest duży, ale ich dom jest większy.</div>
+        <div class="efr">Notre maison est grande, mais leur maison est plus grande.</div>
+      </div>
+    </div>
+
+    <div class="gram-card">
+      <h3>Astuce — <span>le possessif réfléchi <em>swój</em></span></h3>
+      <p class="desc">Le polonais a un possessif spécial <em>swój</em> qui signifie <strong>"son propre"</strong> — il s'utilise quand le possesseur est le sujet de la phrase :</p>
+      <div class="rule-box">
+        <strong>Mam swojego psa.</strong> = J'ai mon (propre) chien.<br>
+        <strong>On ma swojego psa.</strong> = Il a son chien (à lui).<br>
+        <em>→ Évite la confusion avec <strong>jego</strong> qui désigne quelqu'un d'autre</em>
+      </div>
+      <table class="gram-table">
+        <tr><th></th><th>Masc.</th><th>Fém.</th><th>Neutre</th></tr>
+        <tr><td><span class="gfr">réfléchi</span></td><td><span class="gpl">swój</span></td><td><span class="gpl">swoja</span></td><td><span class="gpl">swoje</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" style="max-width:280px" onclick="switchTab('practice')">✏️ Aller aux exercices →</button>
+</div>
+
+<div class="section" id="practiceSection">
+
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-val gold" id="statScore">0</div><div class="stat-label">score</div></div>
+    <div class="stat"><div class="stat-val blue" id="statQ">0/20</div><div class="stat-label">questions</div></div>
+    <div class="stat"><div class="stat-val green" id="statStreak">0🔥</div><div class="stat-label">série</div></div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="mode-bar">
+    <button class="mode-btn active" onclick="setMode('conjugate',this)">Conjuguer</button>
+    <button class="mode-btn" onclick="setMode('complete',this)">Compléter</button>
+    <button class="mode-btn" onclick="setMode('translate',this)">Traduire PL→FR</button>
+  </div>
+
+  <div class="exercise-card" id="exerciseCard">
+    <div class="extype" id="exType">Conjugaison</div>
+    <div class="qtext" id="questionText"></div>
+    <div class="qhint" id="questionHint"></div>
+    <div id="exerciseBody"></div>
+    <div class="hint-panel" id="hintPanel"></div>
+    <div class="feedback-box" id="feedbackBox"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="hintBtn" onclick="showHint()">💡 Indice</button>
+      <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()">Vérifier</button>
+    </div>
+  </div>
+
+  <button class="back-to-learn" onclick="switchTab('grammar')">Besoin d'une révision ? → <span>Grammaire (questions, pluriels, possessifs) 📖</span></button>
+</div>
+
+<script>
+const VERBS = [
+  { pl:"być", fr:"être", type:"irregular",
+    present:["jestem","jesteś","jest","jesteśmy","jesteście","są"],
+    past_m:["byłem","byłeś","był","byliśmy","byliście","byli"],
+    future:["będę","będziesz","będzie","będziemy","będziecie","będą"],
+    example:{pl:"Jestem studentem.",fr:"Je suis étudiant."},
+    note:"Le verbe le plus important ! Très irrégulier, à mémoriser en priorité." },
+  { pl:"mieć", fr:"avoir", type:"irregular",
+    present:["mam","masz","ma","mamy","macie","mają"],
+    past_m:["miałem","miałeś","miał","mieliśmy","mieliście","mieli"],
+    future:["będę miał","będziesz miał","będzie miał","będziemy mieli","będziecie mieli","będą mieli"],
+    example:{pl:"Mam dwa koty.",fr:"J'ai deux chats."},
+    note:"Très fréquent. Au futur, on utilise będę + miał (participe passé)." },
+  { pl:"iść", fr:"aller (à pied)", type:"irregular",
+    present:["idę","idziesz","idzie","idziemy","idziecie","idą"],
+    past_m:["szedłem","szedłeś","szedł","szliśmy","szliście","szli"],
+    future:["pójdę","pójdziesz","pójdzie","pójdziemy","pójdziecie","pójdą"],
+    example:{pl:"Idę do sklepu.",fr:"Je vais au magasin."},
+    note:"Le passé est très irrégulier. Le futur utilise une forme perfective (pójść)." },
+  { pl:"mówić", fr:"parler", type:"regular",
+    present:["mówię","mówisz","mówi","mówimy","mówicie","mówią"],
+    past_m:["mówiłem","mówiłeś","mówił","mówiliśmy","mówiliście","mówili"],
+    future:["będę mówił","będziesz mówił","będzie mówił","będziemy mówili","będziecie mówili","będą mówili"],
+    example:{pl:"Mówię po polsku.",fr:"Je parle polonais."},
+    note:"Verbe régulier du groupe -ić/-yć. Modèle classique pour ce type." },
+  { pl:"jeść", fr:"manger", type:"irregular",
+    present:["jem","jesz","je","jemy","jecie","jedzą"],
+    past_m:["jadłem","jadłeś","jadł","jedliśmy","jedliście","jedli"],
+    future:["zjem","zjesz","zje","zjemy","zjecie","zjedzą"],
+    example:{pl:"Co jesz na śniadanie?",fr:"Que manges-tu au petit-déjeuner ?"},
+    note:"Irrégulier. Le futur zjeść est perfectif (action terminée, un repas complet)." },
+  { pl:"chcieć", fr:"vouloir", type:"irregular",
+    present:["chcę","chcesz","chce","chcemy","chcecie","chcą"],
+    past_m:["chciałem","chciałeś","chciał","chcieliśmy","chcieliście","chcieli"],
+    future:["będę chciał","będziesz chciał","będzie chciał","będziemy chcieli","będziecie chcieli","będą chcieli"],
+    example:{pl:"Chcę kawę, proszę.",fr:"Je veux un café, s'il vous plaît."},
+    note:"Chcę (je veux) est l'une des formes les plus utiles au quotidien." },
+  { pl:"wiedzieć", fr:"savoir", type:"irregular",
+    present:["wiem","wiesz","wie","wiemy","wiecie","wiedzą"],
+    past_m:["wiedziałem","wiedziałeś","wiedział","wiedzieliśmy","wiedzieliście","wiedzieli"],
+    future:["będę wiedział","będziesz wiedział","będzie wiedział","będziemy wiedzieli","będziecie wiedzieli","będą wiedzieli"],
+    example:{pl:"Wiem, gdzie to jest.",fr:"Je sais où c'est."},
+    note:"À ne pas confondre avec znać (connaître une personne ou une chose concrète)." },
+  { pl:"robić", fr:"faire", type:"regular",
+    present:["robię","robisz","robi","robimy","robicie","robią"],
+    past_m:["robiłem","robiłeś","robił","robiliśmy","robiliście","robili"],
+    future:["zrobię","zrobisz","zrobi","zrobimy","zrobicie","zrobią"],
+    example:{pl:"Co robisz dzisiaj?",fr:"Que fais-tu aujourd'hui ?"},
+    note:"Régulier du groupe -ić. Le futur zrobić est la forme perfectivee (action accomplie)." }
+];
+
+const PRONOUNS = [
+  {pl:"ja",       fr:"je / moi"},
+  {pl:"ty",       fr:"tu / toi"},
+  {pl:"on / ona", fr:"il / elle"},
+  {pl:"my",       fr:"nous"},
+  {pl:"wy",       fr:"vous"},
+  {pl:"oni / one",fr:"ils / elles"}
+];
+
+const TENSES = [
+  {key:"present", label:"présent",  pl:"teraźniejszy"},
+  {key:"past_m",  label:"passé",    pl:"przeszły"},
+  {key:"future",  label:"futur",    pl:"przyszły"}
+];
+
+const ALPHA = [
+  {l:"ą", s:'≈ "on" nasal'},{l:"ć",s:'≈ "tchi"'},{l:"ę",s:'≈ "en" nasal'},
+  {l:"ł", s:'≈ "w" anglais'},{l:"ń",s:'≈ "gn" espagnol'},{l:"ó",s:'≈ "ou"'},
+  {l:"ś", s:'≈ "chi" doux'},{l:"ź",s:'≈ "dji" doux'},{l:"ż",s:'≈ "j" français'},
+  {l:"sz",s:'≈ "ch" français'},{l:"cz",s:'≈ "tch"'},{l:"rz",s:'≈ "j" français'}
+];
+
+const COMPLETE = [
+  {sentence:"Ja ___ Tomek.",blanks:["jestem"],hint:"je m'appelle Tomek",verb:"być",tense:"présent",full_pl:"Ja jestem Tomek.",fr:"Je suis Tomek."},
+  {sentence:"Ona ___ kotę.",blanks:["ma"],hint:"elle a un chat",verb:"mieć",tense:"présent",full_pl:"Ona ma kotę.",fr:"Elle a un chat."},
+  {sentence:"My ___ do domu.",blanks:["idziemy"],hint:"nous allons à la maison",verb:"iść",tense:"présent",full_pl:"My idziemy do domu.",fr:"Nous allons à la maison."},
+  {sentence:"Czy ty ___ po polsku?",blanks:["mówisz"],hint:"tu parles polonais ?",verb:"mówić",tense:"présent",full_pl:"Czy ty mówisz po polsku?",fr:"Tu parles polonais ?"},
+  {sentence:"On ___ kanapkę.",blanks:["jadł"],hint:"il mangeait un sandwich",verb:"jeść",tense:"passé",full_pl:"On jadł kanapkę.",fr:"Il mangeait un sandwich."},
+  {sentence:"Ja ___ kawę jutro.",blanks:["będę chciał"],hint:"je voudrai un café demain",verb:"chcieć",tense:"futur",full_pl:"Ja będę chciał kawę jutro.",fr:"Je voudrai un café demain."},
+  {sentence:"Oni ___ odpowiedź.",blanks:["wiedzą"],hint:"ils savent la réponse",verb:"wiedzieć",tense:"présent",full_pl:"Oni wiedzą odpowiedź.",fr:"Ils savent la réponse."},
+  {sentence:"Wy ___ dobrą robotę!",blanks:["robicie"],hint:"vous faites du bon travail",verb:"robić",tense:"présent",full_pl:"Wy robicie dobrą robotę!",fr:"Vous faites du bon travail !"}
+];
+
+const TRANSLATE = [
+  {pl:"Jestem studentem.",fr:["je suis étudiant","je suis étudiante"],note:"być présent, 1ère pers."},
+  {pl:"Masz czas?",fr:["tu as le temps","tu as du temps","as-tu le temps"],note:"mieć présent, 2ème pers."},
+  {pl:"Ona mówi po angielsku.",fr:["elle parle anglais","elle parle en anglais"],note:"mówić présent, 3ème pers."},
+  {pl:"Będziemy jeść razem.",fr:["nous mangerons ensemble","nous allons manger ensemble"],note:"jeść futur, 1ère pers. pluriel"},
+  {pl:"Chciałem kawę.",fr:["je voulais un café","je voulais du café"],note:"chcieć passé masc., 1ère pers."},
+  {pl:"Oni idą do szkoły.",fr:["ils vont à l'école","elles vont à l'école"],note:"iść présent, 3ème pers. pluriel"},
+  {pl:"Czy wiesz, gdzie on jest?",fr:["est-ce que tu sais où il est","tu sais où il est","sais-tu où il est"],note:"wiedzieć présent"},
+  {pl:"Zrobię to jutro.",fr:["je le ferai demain","je ferai ça demain"],note:"robić futur perfectif, 1ère pers."},
+  {pl:"Są szczęśliwi.",fr:["ils sont heureux","elles sont heureuses"],note:"być présent, 3ème pers. pluriel"},
+  {pl:"Mamy duży dom.",fr:["nous avons une grande maison"],note:"mieć présent, 1ère pers. pluriel"}
+];
+
+// ===== BUILD LEARN =====
+function buildLearn() {
+  document.getElementById('alphaGrid').innerHTML = ALPHA.map(a =>
+    `<div class="lchip"><span class="ltr">${a.l}</span><span class="snd">${a.s}</span></div>`).join('');
+
+  document.getElementById('pronGrid').innerHTML = PRONOUNS.map(p =>
+    `<div class="pron-row"><span class="pron-pl">${p.pl}</span><span class="pron-fr">${p.fr}</span></div>`).join('');
+
+  document.getElementById('verbCards').innerHTML = VERBS.map((v,vi) => `
+    <div class="verb-card" id="vc${vi}">
+      <div class="verb-card-hdr" onclick="toggleVerb(${vi})">
+        <div class="verb-hdr-left">
+          <span class="vpl">${v.pl}</span>
+          <span class="vfr">${v.fr}</span>
+          <span class="vbadge ${v.type}">${v.type==='irregular'?'irrégulier':'régulier'}</span>
+        </div>
+        <span class="vchev">▾</span>
+      </div>
+      <div class="verb-card-body">
+        <div class="vex"><div class="xpl">${v.example.pl}</div><div class="xfr">${v.example.fr}</div></div>
+        <p class="vnote">💡 ${v.note}</p>
+        <div class="ctabs">
+          ${TENSES.map((t,ti)=>`<button class="ctab ${ti===0?'active':''}" onclick="switchTense(${vi},${ti},this)">${t.label} · ${t.pl}</button>`).join('')}
+        </div>
+        ${TENSES.map((t,ti)=>`
+          <table class="ctbl" id="tbl${vi}_${ti}" style="${ti>0?'display:none':''}">
+            ${PRONOUNS.map((p,pi)=>`<tr><td class="cn">${pi+1}.</td><td class="cp">${p.pl}</td><td class="cf">${v[t.key][pi]}</td><td class="cm">${p.fr}</td></tr>`).join('')}
+          </table>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function toggleVerb(vi) { document.getElementById('vc'+vi).classList.toggle('open'); }
+
+function switchTense(vi, ti, btn) {
+  TENSES.forEach((_,i) => { const t = document.getElementById(`tbl${vi}_${i}`); if(t) t.style.display = i===ti?'':'none'; });
+  btn.closest('.ctabs').querySelectorAll('.ctab').forEach((b,i) => b.classList.toggle('active', i===ti));
+}
+
+// ===== TAB =====
+function switchTab(tab) {
+  document.getElementById('learnSection').classList.toggle('visible', tab==='learn');
+  document.getElementById('grammarSection').classList.toggle('visible', tab==='grammar');
+  document.getElementById('practiceSection').classList.toggle('visible', tab==='practice');
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.querySelector('.nav-tab.t'+tab).classList.add('active');
+}
+
+function switchSubTab(id, btn) {
+  ['Questions','Pluriel','Possessif'].forEach(s => {
+    document.getElementById('sub'+s).classList.remove('visible');
+  });
+  document.getElementById('sub'+id.charAt(0).toUpperCase()+id.slice(1)).classList.add('visible');
+  btn.closest('.sub-nav').querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ===== PRACTICE =====
+let mode = 'conjugate', score = 0, qCount = 0, streak = 0;
+const TOTAL = 20;
+let currentEx = null, answered = false, hintUsed = false;
+
+function rand(a) { return a[Math.floor(Math.random()*a.length)]; }
+function ri(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
+
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  newEx();
+}
+
+function newEx() {
+  answered = false; hintUsed = false;
+  document.getElementById('feedbackBox').className = 'feedback-box';
+  document.getElementById('hintPanel').className = 'hint-panel';
+  document.getElementById('checkBtn').textContent = 'Vérifier';
+  document.getElementById('checkBtn').disabled = false;
+  document.getElementById('hintBtn').disabled = false;
+  document.getElementById('checkBtn').onclick = checkAnswer;
+
+  qCount++;
+  if (qCount > TOTAL) { showCongrats(); return; }
+  updateStats();
+
+  if (mode==='conjugate') genConj();
+  else if (mode==='complete') genComplete();
+  else genTransl();
+}
+
+function genConj() {
+  const v = rand(VERBS), t = rand(TENSES), pi = ri(0,5);
+  currentEx = {type:'conjugate', v, t, pi, form:v[t.key][pi], pron:PRONOUNS[pi]};
+  document.getElementById('exType').textContent = `Conjugaison · ${t.label}`;
+  document.getElementById('questionText').innerHTML = `Conjuguez le verbe <strong style="color:var(--accent)">${v.pl}</strong> (<em>${v.fr}</em>)`;
+  document.getElementById('questionHint').innerHTML = `Pronom : <strong>${PRONOUNS[pi].pl}</strong> (${PRONOUNS[pi].fr}) — Temps : ${t.label}`;
+  document.getElementById('exerciseBody').innerHTML = `<div class="answer-area"><input class="answer-input" id="mi" type="text" placeholder="Tapez la forme conjuguée..." autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')checkAnswer()"/></div>`;
+  setTimeout(()=>document.getElementById('mi')?.focus(),80);
+}
+
+function genComplete() {
+  const ex = rand(COMPLETE);
+  currentEx = {type:'complete', ex};
+  document.getElementById('exType').textContent = `Compléter · ${ex.tense}`;
+  document.getElementById('questionText').innerHTML = `Complétez la phrase en polonais :`;
+  document.getElementById('questionHint').innerHTML = `Indice de sens : <strong>${ex.hint}</strong>`;
+  const d = ex.sentence.replace('___','<span style="color:var(--accent2)">___</span>');
+  document.getElementById('exerciseBody').innerHTML = `<div style="font-family:'DM Mono',monospace;font-size:1.05rem;margin-bottom:1.2rem;padding:0.75rem 1rem;background:var(--surface);border-radius:10px;border:1px solid var(--border)">${d}</div><div class="answer-area"><input class="answer-input" id="mi" type="text" placeholder="Forme du verbe..." autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')checkAnswer()"/></div>`;
+  setTimeout(()=>document.getElementById('mi')?.focus(),80);
+}
+
+function genTransl() {
+  const ex = rand(TRANSLATE);
+  const opts = [...TRANSLATE.filter(e=>e!==ex).map(e=>e.fr[0]).sort(()=>Math.random()-.5).slice(0,3), ex.fr[0]].sort(()=>Math.random()-.5);
+  currentEx = {type:'translate', ex, opts};
+  document.getElementById('exType').textContent = 'Traduire · PL → FR';
+  document.getElementById('questionText').innerHTML = `Traduisez cette phrase en français :`;
+  document.getElementById('questionHint').innerHTML = `<strong style="color:var(--accent);font-size:1.1rem">${ex.pl}</strong>`;
+  document.getElementById('exerciseBody').innerHTML = `<div class="options-grid">${opts.map((o,i)=>`<button class="option-btn" id="op${i}" onclick="pickOpt(${i})">${o}</button>`).join('')}</div>`;
+}
+
+function pickOpt(idx) {
+  if (answered) return;
+  const {ex,opts} = currentEx;
+  const ok = ex.fr.some(f=>norm(f)===norm(opts[idx]));
+  answered = true;
+  document.querySelectorAll('.option-btn').forEach((b,i) => {
+    b.disabled = true;
+    if (ex.fr.some(f=>norm(f)===norm(opts[i]))) b.classList.add('correct');
+    else if (i===idx && !ok) b.classList.add('wrong');
+  });
+  showFB(ok, ex.fr[0], ex.note);
+  if (ok) addScore();
+  document.getElementById('checkBtn').textContent = 'Suivant →';
+  document.getElementById('checkBtn').onclick = newEx;
+}
+
+function checkAnswer() {
+  if (currentEx.type==='translate') { newEx(); return; }
+  if (answered) { newEx(); return; }
+  const inp = document.getElementById('mi');
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) { inp.classList.add('shake'); setTimeout(()=>inp.classList.remove('shake'),400); return; }
+  answered = true;
+  let ok, correct, note;
+  if (currentEx.type==='conjugate') {
+    correct = currentEx.form;
+    ok = norm(val)===norm(correct);
+    note = `${currentEx.pron.pl} (${currentEx.pron.fr}) + ${currentEx.v.pl} au ${currentEx.t.label}`;
+  } else {
+    correct = currentEx.ex.blanks[0];
+    ok = currentEx.ex.blanks.some(a=>norm(val)===norm(a));
+    note = `Phrase complète : ${currentEx.ex.full_pl} → ${currentEx.ex.fr}`;
+  }
+  inp.classList.add(ok?'correct':'wrong');
+  showFB(ok, correct, note);
+  if (ok) addScore();
+  document.getElementById('checkBtn').textContent = 'Suivant →';
+  document.getElementById('checkBtn').onclick = newEx;
+}
+
+function norm(s) {
+  return s.toLowerCase().trim()
+    .replace(/[àáâ]/g,'a').replace(/[éèêë]/g,'e').replace(/[îï]/g,'i').replace(/[ôò]/g,'o').replace(/[ùúû]/g,'u')
+    .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e').replace(/ł/g,'l')
+    .replace(/ń/g,'n').replace(/ó/g,'o').replace(/ś/g,'s').replace(/ź|ż/g,'z')
+    .replace(/[?!.,]/g,'');
+}
+
+function showFB(ok, correct, note) {
+  const b = document.getElementById('feedbackBox');
+  b.className = 'feedback-box show '+(ok?'success':'fail');
+  b.innerHTML = ok
+    ? `✅ <strong>Brawo !</strong> <span class="cans">${correct}</span> est correct.<div class="expl">${note}</div>`
+    : `❌ La bonne réponse est : <span class="cans">${correct}</span><div class="expl">${note}</div>`;
+}
+
+function addScore() {
+  score += hintUsed ? 5 : 10;
+  streak++;
+  updateStats();
+}
+
+function showHint() {
+  hintUsed = true;
+  document.getElementById('hintBtn').disabled = true;
+  const p = document.getElementById('hintPanel');
+  p.className = 'hint-panel show';
+  if (currentEx.type==='conjugate') {
+    const {v,t} = currentEx;
+    p.innerHTML = `<h4>Conjugaison de ${v.pl} (${v.fr}) · ${t.label}</h4><div class="hmini">${PRONOUNS.map((pr,i)=>`<div class="hrow"><span class="hp">${pr.pl}</span><span class="hf">${v[t.key][i]}</span></div>`).join('')}</div>`;
+  } else if (currentEx.type==='complete') {
+    const ex = currentEx.ex;
+    p.innerHTML = `<h4>Indice</h4><div class="hrow"><span class="hp">verbe</span><span class="hf">${ex.verb}</span></div><div class="hrow" style="margin-top:.4rem"><span class="hp">traduction</span><span style="color:var(--muted);font-size:.82rem">${ex.fr}</span></div>`;
+  } else {
+    p.innerHTML = `<h4>Indice grammatical</h4><div style="font-size:.85rem">${currentEx.ex.note}</div>`;
+  }
+}
+
+function updateStats() {
+  document.getElementById('statScore').textContent = score;
+  document.getElementById('statQ').textContent = `${Math.min(qCount,TOTAL)}/${TOTAL}`;
+  document.getElementById('statStreak').textContent = `${streak}🔥`;
+  document.getElementById('progressFill').style.width = `${Math.min((qCount-1)/TOTAL*100,100)}%`;
+}
+
+function showCongrats() {
+  document.getElementById('exerciseCard').innerHTML = `
+    <div class="congrats">
+      <div class="big">Brawo! 🎉</div>
+      <p style="font-size:1.1rem;margin-top:1rem">Tu as terminé les <strong>${TOTAL} exercices</strong> !</p>
+      <p style="color:var(--accent);font-size:1.5rem;margin-top:.5rem;font-family:'Playfair Display',serif">Score final : ${score} pts</p>
+      <p style="color:var(--muted);margin-top:.4rem">Série : ${streak} bonnes réponses</p>
+      <div style="display:flex;gap:.75rem;margin-top:2rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-secondary" style="max-width:160px" onclick="switchTab('learn')">📚 Revoir le cours</button>
+        <button class="btn btn-primary" style="max-width:160px" onclick="restartGame()">↺ Recommencer</button>
+      </div>
+    </div>`;
+  document.getElementById('progressFill').style.width = '100%';
+}
+
+function restartGame() {
+  score=0; qCount=0; streak=0;
+  document.getElementById('exerciseCard').innerHTML = `
+    <div class="extype" id="exType">Conjugaison</div>
+    <div class="qtext" id="questionText"></div>
+    <div class="qhint" id="questionHint"></div>
+    <div id="exerciseBody"></div>
+    <div class="hint-panel" id="hintPanel"></div>
+    <div class="feedback-box" id="feedbackBox"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="hintBtn" onclick="showHint()">💡 Indice</button>
+      <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()">Vérifier</button>
+    </div>`;
+  updateStats();
+  newEx();
+}
+
+buildLearn();
+newEx();
+</script>
+</body>
+</html>
